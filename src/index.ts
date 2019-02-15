@@ -9,7 +9,7 @@ let chart = d3.select("#container")
 
 const h:number = chart.node().parentElement.clientHeight
 const w:number = chart.node().parentElement.clientWidth
-const r:number = Math.min(h, w)/2
+const r:number = Math.min(h, w)/3
 
 
 init()
@@ -65,7 +65,7 @@ function draw(data:any[], categories:any[]) {
        .append('circle')
        .attr('cx', (d) => d.x)
        .attr('cy', (d ) => d.y)
-       .attr('r', (d) => d.energy * 10)
+       .attr('r', (d) => Math.min(d.energy* 5, 20))
        .attr('fill', d => `hsl(0,0%,${Math.random()*100}%)`)
 
     let lines = lineContainer
@@ -90,11 +90,15 @@ function getRandomData(): any[] {
         { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
         { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
         { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
+        { name: 'Shower', energy: 2.5, type: 'duration'},        { name: 'TV', energy: 1.7, type: 'duration'},
+        { name: 'Shower', energy: 2.5, type: 'duration'},        { name: 'TV', energy: 1.7, type: 'duration'},
         { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'usage'},
+        { name: 'Shower', energy: 12.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
+        { name: 'Shower', energy: 1.5, type: 'distance'},
+        { name: 'Shower', energy: 75.5, type: 'distance'},
+        { name: 'Shower', energy: 2.5, type: 'distance'},
+        { name: 'Shower', energy: 2.5, type: 'distance'},
+        { name: 'Shower', energy: 10.5, type: 'distance'},
     ]
 }
 
