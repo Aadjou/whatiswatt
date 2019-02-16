@@ -1,157 +1,179 @@
-import * as d3 from "d3"
+import * as d3 from 'd3'
 
-const categories = [{name: 'h', color: 'Bisque'},
-    {name: 'km', color: 'BlanchedAlmond'},
-    {name: 'usage', color: 'Cornsilk'}]
-
-let chart = d3.select("#container")
-    .append("svg")
-
-const h:number = chart.node().parentElement.clientHeight
-const w:number = chart.node().parentElement.clientWidth
-const r:number = Math.min(h, w)/3
-
-
-d3.json("http://localhost:5000/start").then(d => {
-    init(d)
-})
-
-function init(d) {
-    const data = calculatePositions(d)
-    draw(data, d)
+interface Data {
+    title: string
+    main: Parameter
+    parameters: Parameter[]
 }
 
-function draw(data:any[], categories:any[]) {
+interface Parameter {
+    label: string
+    value: any
+    unit: string
+}
+
+const data:Data[] = [
+            {
+        title: "Google Suche",
+        main: {
+            label: "Anzahl",
+            value: 433,
+            unit: ""
+        },
+        parameters: []
+    },
+        {
+        title: "Smartphone",
+        main: {
+            label: "Ladungen",
+            value: 14.13,
+            unit: ""
+        },
+        parameters: [
+            {
+                label: "Modell",
+                value: "Fairphone",
+                unit: "˅"
+            },
+        ]
+    },
+      {
+        title: "Toaster",
+        main: {
+            label: "Dauer",
+            value: 6.24,
+            unit: "min"
+        },
+        parameters: [
+            {
+                label: "Modell",
+                value: "KitchenAid",
+                unit: "˅"
+            },
+        ]
+    },
+          {
+        title: "Zugfahrt",
+        main: {
+            label: "Distanz",
+            value: 1.023622047,
+            unit: "km"
+        },
+        parameters: [
+            {
+                label: "Zugart",
+                value: "Interregio",
+                unit: "˅"
+            },
+            {
+                label: "Belegung",
+                value: 60,
+                unit: "%"
+            }
+        ]
+    },
+          {
+        title: "Bitcoin",
+        main: {
+            label: "Transaktionen",
+            value: 0.0004333333333,
+            unit: ""
+        },
+        parameters: [
+                    ]
+    },
+
+          {
+        title: "Mikrowelle",
+        main: {
+            label: "Dauer",
+            value: 9.75,
+            unit: "min"
+        },
+        parameters: [
+            {
+                label: "Leistung",
+                value: 800,
+                unit: "Watt"
+            },
+            {
+                label: "Modell",
+                value: "Bosch HMT72",
+                unit: "˅"
+            },
+        ]
+    },
 
 
-    let circleContainer = chart
-        .attr("width", w)
-        .attr("height", h)
-        .append('g')
-        .attr('class', 'circles')
+]
 
-    let lineContainer = chart
-        .append('g')
-        .attr('g', 'lines')
+draw(1)
+function draw(factor) {
+    console.log(factor)
+    d3.selectAll("#container section").remove()
+    d3.selectAll("#container .kwh").remove()
+    
+    d3.select("#container")
+        .append("p")
+        .attr("class", "kwh")
+        .text(`${Number((0.13*factor).toFixed(3))} kWh`)
 
-    let nodeContainer = chart
-        .append('g')
-        .attr('class', 'nodes')
-
-    let circles = circleContainer
-        .selectAll('circle')
-        .data(categories)
-        .enter()
-        .append('circle')
-
-    circles
-        .attr('cx', w/2)
-        .attr('cy', h/2)
-        .attr('r', (d, i) => {
-            return getRadius(i, r)
-        })
-        //.style("fill", (d) => d.color)
-        .style('fill', 'transparent')
-        .style('stroke', 'darkgrey')
-        .style('stroke-width', 3)
-        .style('stroke-dasharray', '1, 8')
-        .style('stroke-linecap', 'round')
-
-   let nodes = nodeContainer
-       .selectAll('circle')
-       .data(data)
-       .enter()
-       .append('circle')
-       .attr('cx', (d) => d.x)
-       .attr('cy', (d ) => d.y)
-       .attr('r', (d) => Math.min(d["wh_per_unit"]* 0.05, 20))
-       .attr('fill', d => `hsl(0,0%,${Math.min(0.4, Math.random())*100}%)`)
-        .on("mouseover", function() {
-            d3.select(this).attr("fill", "red")
-            showLegend(d3.select(this).data()[0]["activity"])
-        })
-        .on('mouseout', function() {
-            removeLegend()
-            d3.select(this).attr("fill", d => `hsl(0,0%,${Math.min(0.4, Math.random())*100}%)`)
-        })
-
-    let lines = lineContainer
-        .selectAll('line')
+    const scenarios =
+        d3.select("#container")
+        .selectAll("section")
         .data(data)
         .enter()
-        .append('line')
-        .style('stroke', 'black')
-        .attr('x1', (d) => w/2)
-        .attr('x2', (d) => d.x)
-        .attr('y1', (d) => h/2)
-        .attr('y2', (d) => d.y)
+        .append("section")
+        .attr("class", "scenario")
+
+    scenarios
+        .append("h1")
+        .attr("class", "scenario")
+        .text(d => d.title)
+
+    scenarios.selectAll(".main").remove()
+
+    const ps = scenarios
+        .append("p")
+        .attr("class", "main")
+
+    ps.append("span")
+        .attr("class", "main-label")
+        .text(d => d.main.label)
+
+    ps.append("input")
+        .attr("class", "main-value")
+        .attr("value", d => {console.log(factor); return Number((d.main.value * factor).toFixed(2)); })
+        .on("keydown", function(d) {
+            if(d3.event.key === "Enter" || d3.event.key === "Tab") {
+                let factor = parseFloat(this.value) / d.main.value
+                draw(factor)
+            }
+        })
+
+    ps.append("span")
+        .attr("class", "main-unit")
+        .text(d => d.main.unit)
+
+
+    const minors = scenarios.selectAll(".minor") 
+        .data(d => d.parameters)
+        .enter()
+        .append("p")
+        .attr("class", "minor")
+
+    minors
+        .append("span")
+        .attr("class", "minor-label")
+        .text(d => d.label)
+
+    minors
+        .append("span")
+        .attr("class", "minor-value")
+        .text(d => d.value)
+
+    minors
+        .append("span")
+        .attr("class", "minor-unit")
+        .text(d => d.unit)
 }
-
-
-function showLegend(name) {
-   d3.select("svg")
-    .append("text")
-    .attr("class", "legend")
-    .attr("x", w/2-100)
-    .attr("y", h-100)
-    .text(name)
-}
-
-
-function removeLegend() {
-   d3.select(".legend") 
-    .remove()
-}
-
-
-function getRandomData(): any[] {
-    return [
-        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'duration'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'duration'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 2.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 12.5, type: 'usage'},        { name: 'TV', energy: 1.7, type: 'duration'},
-        { name: 'Shower', energy: 1.5, type: 'distance'},
-        { name: 'Shower', energy: 75.5, type: 'distance'},
-        { name: 'Shower', energy: 2.5, type: 'distance'},
-        { name: 'Shower', energy: 2.5, type: 'distance'},
-        { name: 'Shower', energy: 10.5, type: 'distance'},
-    ]
-}
-
-function getRadius(i:number, r: number) {
-    return r/(categories.length) * (categories.length - i)
-}
-
-function getRadiusRange(name: string) {
-
-    let idx = -1
-    for(let i = 0; i < categories.length; i++) {
-        if(categories[i].name === name) {
-            idx = i
-            break
-        }
-    }
-    return {min: getRadius(idx+1, r), max: getRadius(idx, r)}
-}
-
-function calculatePositions(data: any[]) {
-    data.forEach((d) => {
-        const range = getRadiusRange(d["unit"])
-        const randomAngle = Math.random() * Math.PI * 2
-
-        const length = Math.random() * (range.max - range.min) + range.min;
-        d.x = length * Math.cos(randomAngle) + w/2;
-        d.y = length * Math.sin(randomAngle) + h/2;
-    })
-    return data
-}
-
-// bubble size innerhalb der kategorie
