@@ -65,12 +65,14 @@ function draw(data:any[], categories:any[]) {
        .attr('cx', (d) => d.x)
        .attr('cy', (d ) => d.y)
        .attr('r', (d) => Math.min(d["wh_per_unit"]* 0.05, 20))
-       .attr('fill', d => `hsl(0,0%,${Math.random()*100}%)`)
+       .attr('fill', d => `hsl(0,0%,${Math.min(0.4, Math.random())*100}%)`)
         .on("mouseover", function() {
+            d3.select(this).attr("fill", "red")
             showLegend(d3.select(this).data()[0]["activity"])
         })
         .on('mouseout', function() {
             removeLegend()
+            d3.select(this).attr("fill", d => `hsl(0,0%,${Math.min(0.4, Math.random())*100}%)`)
         })
 
     let lines = lineContainer
